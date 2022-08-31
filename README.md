@@ -4,16 +4,22 @@
 - Section 0 :alien:	
     - Introduction [:books:	lecture 01](lectures/) 
 - Section 1 Motion :alien:	
-    
-		- Kinematics of wheeled mobile robots: internal, external, direct, and inverse 
-		    * Differential drive kinematics
-			  * Bicycle drive kinematics
-			  * Rear-wheel bicycle drive kinematics
-		    * Car(Ackermann) drive kinematics
-		- Wheel kinematics constraints: rolling contact  and lateral slippage 
-	    - Wheeled Mobile System Control: pose and orientation
-			  * Control to reference pose
-            * Control to reference pose via an intermediate point
-            * Control to reference pose via an intermediate direction
-            * Control by a straight line and a circular arc
-            * Reference path control
+	<ul>
+	  <li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
+	     <ul>
+	      <li>Differential drive kinematics</li>
+	      <li>Bicycle drive kinematics</li>
+	      <li>Rear-wheel bicycle drive kinematics</li>
+	      <li>Car(Ackermann) drive kinematics</li>
+	    </ul>
+	  <li>Wheel kinematics constraints: rolling contact  and lateral slippage </li>
+	  <li>Wheeled Mobile System Control: pose and orientation
+	    <ul>
+	      <li>Control to reference pose</li>
+	      <li>Control to reference pose via an intermediate point</li>
+	      <li>Control to reference pose via an intermediate direction</li>
+	      <li>Control by a straight line and a circular arc</li>
+	      <li>Reference path control</li>
+	    </ul>
+	  </li>
+	</ul>
