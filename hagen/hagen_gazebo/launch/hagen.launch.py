@@ -37,7 +37,7 @@ def generate_launch_description():
           'world',
           default_value=[os.path.join(pkg_hagen_gazebo, 'worlds', 'hagen_empty.world'), ''],
           description='SDF world file'),
-        DeclareLaunchArgument('rviz', default_value='true',
+        DeclareLaunchArgument('rviz', default_value='false',
                               description='Open RViz.'),
         gazebo,
         rviz
