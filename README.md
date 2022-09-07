@@ -3,7 +3,7 @@
     
 - Section 0 :alien:	
     - Introduction [:books:	lecture 00](lectures/amr_introduction.pdf) 
-- Section 1 Motion :alien:	[:books: lecture 01](lectures/lecture_01.pdf) 
+- Section 1 Motion :alien:	[:books: lecture 01](lectures/lecture_01.pdf) [:books: lecture 02](lectures/lecture_02.pdf) 
 	<ul>
 	  <li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
 	     <ul>

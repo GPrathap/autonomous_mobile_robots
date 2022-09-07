@@ -67,31 +67,6 @@ class MinimalPublisher(Node):
         msg.angular.z = w
         self.publisher_.publish(msg)
 
-    def perform_action_diff_drive(self, duration):
-        times = (int)(1.0/self.Ts)
-        rate = self.create_rate(times)
-        q = self.set_q_init # np.array([4 ,0.5, np.pi/6]) # Initial pose
-        time_utilized = 0.0
-        # try:
-        # for i in range(0, self.t.shape[0]):                                                   
-        while rclpy.ok():
-            if(duration < time_utilized):
-                print("End of simulation")
-                self.send_vel(0.0, 0.0)
-                break
-            wL = 12 # Left wheel velocity
-            wR = 12.5 # Right wheel velocity
-            v = self.r/2*(wR+wL) # Robot velocity
-            w = self.r/self.L*(wR-wL) # Robot angular velocity
-            dq = np.array([v*np.cos(q[2]+self.Ts*w/2), v*np.sin(q[2]+self.Ts*w/2), w])
-            q = q + self.Ts*dq # Integration
-            q[2] = self.wrap_to_pi(q[2]) # Map orientation angle to [-pi, pi]
-            self.send_vel(v, w)
-            # rate.sleep()
-            time.sleep(self.Ts)
-                # print(f"v w  {v} {w}")
-            time_utilized  =  time_utilized + self.Ts
-
 SPIN_QUEUE = []
 PERIOD = 0.01
 
@@ -111,7 +86,7 @@ def main(args=None):
         rclpy.spin_once(minimal_publisher)
 
     #TODO Add your controller 
-    minimal_publisher.perform_action_diff_drive(10)
+    
 
     rclpy.spin(minimal_publisher)
     minimal_publisher.destroy_node()
