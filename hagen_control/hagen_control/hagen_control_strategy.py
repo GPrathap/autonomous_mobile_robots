@@ -56,6 +56,30 @@ class MinimalPublisher(Node):
         mask = np.abs(xwrap)>np.pi
         xwrap[mask] -= 2*np.pi * np.sign(xwrap[mask])
         return xwrap[0]
+
+    def perform_action_diff_drive(self, duration):
+        q = self.set_q_init # np.array([4 ,0.5, np.pi/6]) # Initial pose
+        # for i in range(0, self.t.shape[0]):
+        time_utilized = 0.0
+        # try:
+        while rclpy.ok():
+            if(duration < time_utilized):
+                print("End of simulation")
+                self.send_vel(0.0, 0.0)
+                break
+            wL = 12 # Left wheel velocity
+            wR = 12.5 # Right wheel velocity
+            v = self.r/2*(wR+wL) # Robot velocity
+            w = self.r/self.L*(wR-wL) # Robot angular velocity
+            dq = np.array([v*np.cos(q[2]+self.Ts*w/2), v*np.sin(q[2]+self.Ts*w/2), w])
+            q = q + self.Ts*dq # Integration
+            q[2] = self.wrap_to_pi(q[2]) # Map orientation angle to [-pi, pi]
+            self.send_vel(v, w)
+            # rate.sleep()
+            time.sleep(self.Ts)
+                # print(f"v w  {v} {w}")
+            time_utilized  =  time_utilized + self.Ts
+
     
     def set_pose(self, msg):
         _, _, yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
@@ -86,11 +110,10 @@ def main(args=None):
         rclpy.spin_once(minimal_publisher)
 
     #TODO Add your controller 
+    minimal_publisher.diff_drive_controller()
     
-
     rclpy.spin(minimal_publisher)
     minimal_publisher.destroy_node()
-
     rclpy.shutdown()
 
 
