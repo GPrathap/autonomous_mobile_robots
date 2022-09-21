@@ -57,11 +57,9 @@ class MinimalPublisher(Node):
         xwrap[mask] -= 2*np.pi * np.sign(xwrap[mask])
         return xwrap[0]
 
-    def perform_action_diff_drive(self, duration):
+    def perform_action_diff_drive(self, duration=10):
         q = self.set_q_init # np.array([4 ,0.5, np.pi/6]) # Initial pose
-        # for i in range(0, self.t.shape[0]):
         time_utilized = 0.0
-        # try:
         while rclpy.ok():
             if(duration < time_utilized):
                 print("End of simulation")
@@ -75,12 +73,9 @@ class MinimalPublisher(Node):
             q = q + self.Ts*dq # Integration
             q[2] = self.wrap_to_pi(q[2]) # Map orientation angle to [-pi, pi]
             self.send_vel(v, w)
-            # rate.sleep()
             time.sleep(self.Ts)
-                # print(f"v w  {v} {w}")
             time_utilized  =  time_utilized + self.Ts
 
-    
     def set_pose(self, msg):
         _, _, yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
         self.set_q_init = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y, yaw])
@@ -110,7 +105,7 @@ def main(args=None):
         rclpy.spin_once(minimal_publisher)
 
     #TODO Add your controller 
-    minimal_publisher.diff_drive_controller()
+    minimal_publisher.perform_action_diff_drive()
     
     rclpy.spin(minimal_publisher)
     minimal_publisher.destroy_node()
