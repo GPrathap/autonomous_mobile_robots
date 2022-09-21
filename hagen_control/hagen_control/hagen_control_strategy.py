@@ -57,7 +57,7 @@ class MinimalPublisher(Node):
         xwrap[mask] -= 2*np.pi * np.sign(xwrap[mask])
         return xwrap[0]
 
-    def perform_action_diff_drive(self, duration=10):
+    def inter_direction_diff_drive(self, duration=10, r_distance=1.3, refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7):
         q = self.set_q_init # np.array([4 ,0.5, np.pi/6]) # Initial pose
         time_utilized = 0.0
         while rclpy.ok():
@@ -65,16 +65,27 @@ class MinimalPublisher(Node):
                 print("End of simulation")
                 self.send_vel(0.0, 0.0)
                 break
-            wL = 12 # Left wheel velocity
-            wR = 12.5 # Right wheel velocity
-            v = self.r/2*(wR+wL) # Robot velocity
-            w = self.r/self.L*(wR-wL) # Robot angular velocity
+            
+            D = np.sqrt((q[0]-refPose[0])**2 + (q[1]-refPose[1])**2)
+            beta = np.arctan(r_distance/D)
+            phiR = np.arctan2(refPose[1]-q[1], refPose[0]-q[0])
+            alpha = self.wrap_to_pi(phiR-refPose[2])
+            if(alpha <0):
+                beta = -beta
+            ##Controller
+            if(np.abs(alpha) < np.abs(beta)):
+                ePhi = self.wrap_to_pi(phiR - q[2] + alpha) 
+            else:
+                ePhi = self.wrap_to_pi(phiR -q[2] + beta) 
+            v = k_p*D
+            w = k_w*ePhi
+            print("Distance to the goal: ", D)
             dq = np.array([v*np.cos(q[2]+self.Ts*w/2), v*np.sin(q[2]+self.Ts*w/2), w])
             q = q + self.Ts*dq # Integration
             q[2] = self.wrap_to_pi(q[2]) # Map orientation angle to [-pi, pi]
             self.send_vel(v, w)
             time.sleep(self.Ts)
-            time_utilized  =  time_utilized + self.Ts
+            time_utilized  =  time_utilized + self.Ts    
 
     def set_pose(self, msg):
         _, _, yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
@@ -104,13 +115,12 @@ def main(args=None):
             print(f"something went wrong in the ROS Loop: {e}")
         rclpy.spin_once(minimal_publisher)
 
-    #TODO Add your controller 
-    minimal_publisher.perform_action_diff_drive()
-    
+    minimal_publisher.inter_direction_diff_drive()
     rclpy.spin(minimal_publisher)
     minimal_publisher.destroy_node()
     rclpy.shutdown()
 
-
 if __name__ == '__main__':
     main()
+
+# To reset ros2 service call /reset_simulation std_srvs/srv/Empty
