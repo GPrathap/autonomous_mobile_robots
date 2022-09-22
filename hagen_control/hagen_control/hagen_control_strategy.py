@@ -17,11 +17,14 @@ class MinimalPublisher(Node):
         self.odom_sub
         self.i = 0
         self.set_q_init = None
+        self.q = None 
         self.r = 0.3 # Wheel radius
         self.L = 1.25 # Axle length
         self.D = 0.07 # Distance between the front front whell and rear axle
         self.Ts = delta_t # Sampling time
         self.t = np.arange(0, 10, self.Ts) # Simulation time
+        self.end_controller = False
+        self.timer = self.create_timer(self.Ts, self.timer_callback)
 
     def euler_from_quaternion(self, quaternion):
         """
@@ -57,39 +60,62 @@ class MinimalPublisher(Node):
         xwrap[mask] -= 2*np.pi * np.sign(xwrap[mask])
         return xwrap[0]
 
-    def inter_direction_diff_drive(self, duration=10, r_distance=1.3, refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7):
-        q = self.set_q_init # np.array([4 ,0.5, np.pi/6]) # Initial pose
-        time_utilized = 0.0
-        while rclpy.ok():
-            if(duration < time_utilized):
+    def inter_direction_diff_drive_init(self, duration=10, r_distance=1.3
+                    , refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7, dmin=0.7):
+        self.duration = duration
+        self.r_distance = r_distance
+        self.refPose = refPose
+        self.k_p = k_p 
+        self.k_w = k_w
+        self.dmin = dmin
+        
+
+    def inter_direction_diff_drive(self, ):
+        if(self.q is not None):
+            self.time_utilized = 0.0 
+            if(self.duration < self.time_utilized):
                 print("End of simulation")
                 self.send_vel(0.0, 0.0)
-                break
-            
-            D = np.sqrt((q[0]-refPose[0])**2 + (q[1]-refPose[1])**2)
-            beta = np.arctan(r_distance/D)
-            phiR = np.arctan2(refPose[1]-q[1], refPose[0]-q[0])
-            alpha = self.wrap_to_pi(phiR-refPose[2])
+                self.end_controller = True
+
+            self.D = np.sqrt((self.q[0]-self.refPose[0])**2 
+                                    + (self.q[1]-self.refPose[1])**2)
+
+            if(self.D < self.dmin):
+                print("Reach to the goal pose")
+                self.send_vel(0.0, 0.0)
+                self.end_controller = True
+
+                
+            beta = np.arctan(self.r_distance/self.D)
+            phiR = np.arctan2(self.refPose[1]-self.q[1], self.refPose[0]-self.q[0])
+            alpha = self.wrap_to_pi(phiR-self.refPose[2])
             if(alpha <0):
                 beta = -beta
             ##Controller
             if(np.abs(alpha) < np.abs(beta)):
-                ePhi = self.wrap_to_pi(phiR - q[2] + alpha) 
+                ePhi = self.wrap_to_pi(phiR - self.q[2] + alpha) 
             else:
-                ePhi = self.wrap_to_pi(phiR -q[2] + beta) 
-            v = k_p*D
-            w = k_w*ePhi
-            print("Distance to the goal: ", D)
-            dq = np.array([v*np.cos(q[2]+self.Ts*w/2), v*np.sin(q[2]+self.Ts*w/2), w])
-            q = q + self.Ts*dq # Integration
-            q[2] = self.wrap_to_pi(q[2]) # Map orientation angle to [-pi, pi]
+                ePhi = self.wrap_to_pi(phiR - self.q[2] + beta) 
+            v = self.k_p*self.D
+            w = self.k_w*ePhi
+            print("Distance to the goal: ", self.D)
+            dq = np.array([v*np.cos(self.q[2]+self.Ts*w/2)
+                            , v*np.sin(self.q[2]+self.Ts*w/2), w])
+            self.q = self.q + self.Ts*dq # Integration
+            self.q[2] = self.wrap_to_pi(self.q[2]) # Map orientation angle to [-pi, pi]
             self.send_vel(v, w)
-            time.sleep(self.Ts)
-            time_utilized  =  time_utilized + self.Ts    
+            self.time_utilized  =  self.time_utilized + self.Ts    
+
+    def timer_callback(self, ):
+        if self.end_controller is False:
+            self.inter_direction_diff_drive()
 
     def set_pose(self, msg):
         _, _, yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
-        self.set_q_init = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y, yaw])
+        if(self.set_q_init is None):
+            self.set_q_init = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y, yaw])
+            self.q = self.set_q_init
 
     def send_vel(self, v, w):
         msg = Twist()
@@ -97,25 +123,12 @@ class MinimalPublisher(Node):
         msg.angular.z = w
         self.publisher_.publish(msg)
 
-SPIN_QUEUE = []
-PERIOD = 0.01
-
 def main(args=None):
     rclpy.init(args=args)
     minimal_publisher = MinimalPublisher(delta_t=0.03)
-    SPIN_QUEUE.append(minimal_publisher)
-    while rclpy.ok():
-        try:
-            if(minimal_publisher.set_q_init is not None):
-                    print(f"Init value is set: {minimal_publisher.set_q_init}")
-                    break
-            # for node in SPIN_QUEUE:
-            #     rclpy.spin_once(node, timeout_sec=(PERIOD / len(SPIN_QUEUE)))
-        except Exception as e:
-            print(f"something went wrong in the ROS Loop: {e}")
-        rclpy.spin_once(minimal_publisher)
+    minimal_publisher.inter_direction_diff_drive_init()
 
-    minimal_publisher.inter_direction_diff_drive()
+
     rclpy.spin(minimal_publisher)
     minimal_publisher.destroy_node()
     rclpy.shutdown()
