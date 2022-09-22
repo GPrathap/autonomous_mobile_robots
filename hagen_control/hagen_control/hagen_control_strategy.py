@@ -110,6 +110,9 @@ class MinimalPublisher(Node):
     def timer_callback(self, ):
         if self.end_controller is False:
             self.inter_direction_diff_drive()
+        else:
+            self.destroy_timer(self.timer)
+            return 
 
     def set_pose(self, msg):
         _, _, yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
@@ -127,9 +130,11 @@ def main(args=None):
     rclpy.init(args=args)
     minimal_publisher = MinimalPublisher(delta_t=0.03)
     minimal_publisher.inter_direction_diff_drive_init()
-
-
-    rclpy.spin(minimal_publisher)
+    while minimal_publisher.end_controller is False and rclpy.ok():
+        try:
+            rclpy.spin_once(minimal_publisher)
+        except KeyboardInterrupt:
+            break
     minimal_publisher.destroy_node()
     rclpy.shutdown()
 
