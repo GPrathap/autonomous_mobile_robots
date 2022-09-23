@@ -68,11 +68,10 @@ class MinimalPublisher(Node):
         self.k_p = k_p 
         self.k_w = k_w
         self.dmin = dmin
+        self.time_utilized = 0.0 
         
-
     def inter_direction_diff_drive(self, ):
         if(self.q is not None):
-            self.time_utilized = 0.0 
             if(self.duration < self.time_utilized):
                 print("End of simulation")
                 self.send_vel(0.0, 0.0)
