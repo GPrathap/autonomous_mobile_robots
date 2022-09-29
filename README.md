@@ -2,8 +2,8 @@
 ## Course Structure :space_invader:
     
 - Section 0 :alien:	
-    - Introduction [:books:	lecture 00](lectures/amr_introduction.pdf) 
-- Section 1 Motion :alien:	[:books: section:motion](lectures/amr_motion.pdf) [:books: dubins path planning](lectures/amr_dubins_path_planning.pdf) 
+    - Introduction [:books:](lectures/amr_introduction.pdf) 
+- Section 1 Motion :alien:	[:books: ](lectures/amr_motion.pdf)
 	<ul>
 	  <li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
 	     <ul>
@@ -23,7 +23,7 @@
 	    </ul>
 	  </li>
 	  <li> 
-	  	Dubins path planning
+	  	Dubins path planning [:books: dubins path planning](lectures/amr_dubins_path_planning.pdf) 
 	  </li>
 	</ul>
 - Section 2 :alien:	
