@@ -26,12 +26,12 @@
 	  	Dubins path planning
 	  </li>
 	</ul>
-	<ul>
-	 <li>Bayesian Filter </li> [:books: section:motion](lectures/amr_bayesian_filter.pdf) 
+- Section 2 :alien:	
+    - Bayesian Filter [:books: ](lectures/amr_bayesian_filter.pdf)  
 	 	 <ul>
 	      <li>Basic of Probability</li>
 	      <li>Probabilistic Generative Laws</li>
 	      <li>Estimation from Measurements</li>
 	      <li>Estimation from Measurements and Controls</li>
 	    </ul>
-	</ul>
+	
