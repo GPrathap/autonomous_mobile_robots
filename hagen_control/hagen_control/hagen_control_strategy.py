@@ -7,9 +7,9 @@ from nav_msgs.msg import Odometry
 import time 
 import numpy as np 
 
-class MinimalPublisher(Node):
-    def __init__(self, delta_t):
-        super().__init__('minimal_publisher')
+class ControlStrategy(Node):
+    def __init__(self, delta_t,):
+        super().__init__('control_strategy')
         self.publisher_ = self.create_publisher(Twist, '/hagen/cmd_vel', 30)
         self.vel_sub = self.create_subscription(Twist, '/hagen/cmd_vel', self.listener_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, "/hagen/odom", self.set_pose, 20)
@@ -51,7 +51,10 @@ class MinimalPublisher(Node):
         return roll, pitch, yaw
 
     def listener_callback(self, msg):
-        pass    
+        pass
+
+    def stop_vehicle(self, ):
+        self.send_vel(0.0, 0.0)    
     
     def wrap_to_pi(self, x):
         x = np.array([x])
@@ -60,6 +63,54 @@ class MinimalPublisher(Node):
         xwrap[mask] -= 2*np.pi * np.sign(xwrap[mask])
         return xwrap[0]
 
+    def inter_point_diff_drive_init(self, duration=10, r_distance=1.3
+                    , refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7, dmin=0.7):
+        self.duration = duration
+        self.r_distance = r_distance
+        self.refPose = refPose
+        self.k_p = k_p 
+        self.k_w = k_w
+        self.dmin = dmin
+        self.time_utilized = 0.0
+        self.xT = self.refPose[0]  - self.r_distance*np.cos(self.refPose[2])
+        self.yT = self.refPose[1]  - self.r_distance*np.sin(self.refPose[2])
+        self.state = 0
+
+    def inter_point_diff_drive(self, ):
+        if(self.q is not None):
+            if(self.duration < self.time_utilized):
+                self.stop_vehicle()
+                print("End of simulation")
+                self.end_controller = True
+
+            self.D = np.sqrt((self.q[0]-self.refPose[0])**2 
+                                    + (self.q[1]-self.refPose[1])**2)
+
+            if(self.D < self.dmin):
+                self.stop_vehicle()
+                print("Reach to the goal pose")
+                self.end_controller = True
+
+            
+            if self.state == 0:
+                d = np.sqrt((self.yT-self.q[1])**2 + (self.xT-self.q[0])**2)
+                if(d < self.dmin):
+                    self.state = 1
+                self.phiT = np.arctan2(self.yT-self.q[2], self.xT-self.q[1])
+                self.ePhi = self.phiT - self.q[2]
+            else:
+                self.ePhi = self.refPose[2] - self.q[2]
+            
+            v = self.k_p*self.D
+            w = self.k_w*self.ePhi
+            print("Distance to the goal: ", self.D)
+            dq = np.array([v*np.cos(self.q[2]+self.Ts*w/2)
+                            , v*np.sin(self.q[2]+self.Ts*w/2), w])
+            self.q = self.q + self.Ts*dq # Integration
+            self.q[2] = self.wrap_to_pi(self.q[2]) # Map orientation angle to [-pi, pi]
+            self.send_vel(v, w)
+            self.time_utilized  =  self.time_utilized + self.Ts   
+        
     def inter_direction_diff_drive_init(self, duration=10, r_distance=1.3
                     , refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7, dmin=0.7):
         self.duration = duration
@@ -68,8 +119,8 @@ class MinimalPublisher(Node):
         self.k_p = k_p 
         self.k_w = k_w
         self.dmin = dmin
-        self.time_utilized = 0.0 
-        
+        self.time_utilized = 0.0
+
     def inter_direction_diff_drive(self, ):
         if(self.q is not None):
             if(self.duration < self.time_utilized):
@@ -108,7 +159,8 @@ class MinimalPublisher(Node):
 
     def timer_callback(self, ):
         if self.end_controller is False:
-            self.inter_direction_diff_drive()
+            # self.inter_direction_diff_drive()
+            self.inter_point_diff_drive()
         else:
             self.destroy_timer(self.timer)
             return 
@@ -127,8 +179,9 @@ class MinimalPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    minimal_publisher = MinimalPublisher(delta_t=0.03)
-    minimal_publisher.inter_direction_diff_drive_init()
+    minimal_publisher = ControlStrategy(delta_t=0.03)
+    # minimal_publisher.inter_direction_diff_drive_init()
+    minimal_publisher.inter_point_diff_drive_init()
     while minimal_publisher.end_controller is False and rclpy.ok():
         try:
             rclpy.spin_once(minimal_publisher)

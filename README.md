@@ -3,7 +3,7 @@
     
 - Section 0 :alien:	
     - Introduction [:books:	lecture 00](lectures/amr_introduction.pdf) 
-- Section 1 Motion :alien:	[:books: section:motion](lectures/lecture_motion.pdf) [:books: dubins path planning](lectures/lecture_dubins_path_planning.pdf) 
+- Section 1 Motion :alien:	[:books: section:motion](lectures/amr_motion.pdf) [:books: dubins path planning](lectures/amr_dubins_path_planning.pdf) 
 	<ul>
 	  <li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
 	     <ul>
@@ -25,4 +25,13 @@
 	  <li> 
 	  	Dubins path planning
 	  </li>
+	</ul>
+	<ul>
+	 <li>Bayesian Filter </li> [:books: section:motion](lectures/amr_bayesian_filter.pdf) 
+	 	 <ul>
+	      <li>Basic of Probability</li>
+	      <li>Probabilistic Generative Laws</li>
+	      <li>Estimation from Measurements</li>
+	      <li>Estimation from Measurements and Controls</li>
+	    </ul>
 	</ul>
