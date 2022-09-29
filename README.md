@@ -3,7 +3,7 @@
     
 - Section 0 :alien:	
     - Introduction [:books:](lectures/amr_introduction.pdf) 
-- Section 1 Motion :alien:	[:books: ](lectures/amr_motion.pdf)
+- Section 1 Motion :alien:	[:books: ](lectures/amr_motion.pdf) [:books:] dubins path planning](lectures/amr_dubins_path_planning.pdf) 
 	<ul>
 	  <li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
 	     <ul>
@@ -23,7 +23,7 @@
 	    </ul>
 	  </li>
 	  <li> 
-	  	Dubins path planning [:books: dubins path planning](lectures/amr_dubins_path_planning.pdf) 
+	  	Dubins path planning
 	  </li>
 	</ul>
 - Section 2 :alien:	
