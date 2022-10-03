@@ -96,7 +96,7 @@ class ControlStrategy(Node):
                 d = np.sqrt((self.yT-self.q[1])**2 + (self.xT-self.q[0])**2)
                 if(d < self.dmin):
                     self.state = 1
-                self.phiT = np.arctan2(self.yT-self.q[2], self.xT-self.q[1])
+                self.phiT = np.arctan2(self.yT-self.q[1], self.xT-self.q[0])
                 self.ePhi = self.phiT - self.q[2]
             else:
                 self.ePhi = self.refPose[2] - self.q[2]
