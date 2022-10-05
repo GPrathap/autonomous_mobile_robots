@@ -38,7 +38,7 @@ for idx, u, z in zip(range(0, len(U)), U, Z):
     if u == 'move':
         belp_X = #TODO 
     else:
-        belp_X = #TODO 
+        belp_X = bel_X@p_ZXUn 
     bel_X_steps_prediction.append(belp_X)
     print("belp_X: ", belp_X)
     print('Correction step: Z({0}))={1}'.format(idx, z))
