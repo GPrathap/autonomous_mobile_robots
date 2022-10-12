@@ -36,17 +36,17 @@ bel_X_steps_correction = []
 for idx, u, z in zip(range(0, len(U)), U, Z):
     print('Prediction step: U({0})={1}'.format(idx, u))
     if u == 'move':
-        belp_X = #TODO 
+        belp_X = bel_X@p_ZXUc
     else:
-        belp_X = bel_X@p_ZXUn 
+        belp_X = bel_X@p_ZXUn
     bel_X_steps_prediction.append(belp_X)
     print("belp_X: ", belp_X)
     print('Correction step: Z({0}))={1}'.format(idx, z))
     if z == 'free':
-        bel_X = #TODO 
+        bel_X = p_ZX[0]*belp_X
     else:
-        bel_X = #TODO 
-    bel_X = #TODO 
+        bel_X = p_ZX[1]*belp_X
+    bel_X = bel_X/np.sum(bel_X)
     bel_X_steps_correction.append(bel_X)
     print("bel_X: ", bel_X)
 
@@ -55,7 +55,6 @@ bel_X_steps_correction = np.array(bel_X_steps_correction)
 
 def barlist(n):
     return np.array([bel_X_steps_prediction[n], bel_X_steps_correction[n]]).flatten()
-
 
 fig = plt.figure()
 n = len(U)-1
@@ -69,7 +68,6 @@ def animate(i):
     for i, b in enumerate(barcollection):
         print(i, b)
         b.set_height(y[i])
-
 
 anim = animation.FuncAnimation(fig, animate, repeat=False, blit=False, frames=n,
                                interval=1000)

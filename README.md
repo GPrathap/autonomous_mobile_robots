@@ -34,5 +34,5 @@
 	      <li>Estimation from Measurements</li>
 	      <li>Estimation from Measurements and Controls</li>
 	    </ul>
-	- robot localization   [:books: ](lectures/amr_robot_localization.pdf) 
+	- Robot localization   [:books: ](lectures/amr_robot_localization.pdf) 
 	
