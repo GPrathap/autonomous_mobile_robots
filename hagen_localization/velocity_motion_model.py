@@ -26,6 +26,12 @@ def plot_data(model_data, ax, color_):
         ax.annotate("", xytext=(X, Y), xy=(X+0.001*dX, Y+0.001*dY),
                     arrowprops=dict(arrowstyle="->", color=color_), size=20)
 
+
+def sample_normal_distribution(b):
+    # sample normal distribution with 0 mean, variance b
+    rand = np.random.uniform(low=-1.0, high=1.0, size=12)
+    return b * np.sum(rand) / 6
+
 # ideal motion model
 
 
@@ -62,6 +68,22 @@ def velocity_motion_model_noisy(xk, u, dt, noise):
 
     x = np.array([xp, yp, thetap])
     return x
+
+# bicycle's velocity motion model
+
+
+def bicycle_motion_model(x0, u, dt, sigma_v, sigma_alpha, ):
+    l = 0.1
+    v, alpha = u
+    x, y, theta = x0
+    v_hat = v + sample_normal_distribution(sigma_v**2)
+    alpha_hat = alpha + sample_normal_distribution(sigma_alpha**2)
+    # generate sample
+    x_p = x + v_hat * dt * (np.cos(theta) - np.tan(alpha_hat) * np.sin(theta))
+    y_p = y + v_hat * dt * (np.sin(theta) + np.tan(alpha_hat) * np.cos(theta))
+    theta_p = theta + v_hat * dt * np.tan(alpha_hat) / l
+
+    return np.array([x_p, y_p, theta_p])
 
 
 # plotting the motion model
