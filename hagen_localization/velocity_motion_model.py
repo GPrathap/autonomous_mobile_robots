@@ -3,20 +3,28 @@ import matplotlib.pyplot as plt
 
 
 x0 = np.array([0, 0, -np.pi/10]) #initial pose
-xn = np.array([2.45, 2.45, -np.pi/5]) #final pose
-dt = 0.1 # time step
+dt = 0.05 # time step
 v = 2.4 # linear velocity
 w = (np.pi/5) # angular velocity
-n = 20 # number of samples
+n = 6 # number of samples
 u = np.array([v, w]) #the velocity command
 
-def sample_normal_dist(b):
-    tot = 0
-    for i in range(0, 12):
-        tot = tot +  np.random.normal(-b, b)
-    sample = 1/2 * tot
-    return sample
 
+def plot_data(model_data, ax, color_):
+    # calculate position and direction vectors:
+    size_of_points = len(model_data[:,0])
+    x0 = model_data[:,0][range(size_of_points-1)]
+    x1 = model_data[:,0][range(1,size_of_points)]
+    y0 = model_data[:,1][range(size_of_points-1)]
+    y1 = model_data[:,1][range(1,size_of_points)]
+    xpos = (x0+x1)/2
+    ypos = (y0+y1)/2
+    xdir = x1-x0
+    ydir = y1-y0
+    # plot arrow on each line:
+    for X,Y,dX,dY in zip(xpos, ypos, xdir, ydir):
+        ax.annotate("", xytext=(X,Y),xy=(X+0.001*dX,Y+0.001*dY), arrowprops=dict(arrowstyle="->", color=color_), size = 20)
+        
 # ideal motion model
 def velocity_motion_model_ideal(xk, u, dt):
     v = u[0]
@@ -32,6 +40,7 @@ def velocity_motion_model_ideal(xk, u, dt):
     x = np.array([xp, yp, thetap])
     return x
 
+# noisy motion model
 def velocity_motion_model_noisy(xk, u, dt, noise):
     v = u[0]
     w = u[1]
@@ -44,44 +53,42 @@ def velocity_motion_model_noisy(xk, u, dt, noise):
 
     xp = x - (vp/wp)*np.sin(theta) + (vp/wp)*np.sin(theta + wp*dt)
     yp = y + (vp/wp)*np.cos(theta) - (vp/wp)*np.cos(theta + wp*dt)
-    thetap = theta + wp*dt + noise(3)*dt
+    thetap = theta + wp*dt + noise[2]*dt
 
     x = np.array([xp, yp, thetap])
     return x
 
-# plotting noise motion model 
-s = []
-f = []
+# plotting the motion model 
+ideal_model = []
+noisy_model = []
+v_var = 2.5
+omega_var = 4.7
+theta_car = 0.6
+# noise = [np.random.normal(0, v_var), np.random.normal(0, omega_var), np.random.normal(0, theta_car)]
+noise = [1.5, 2.4, 0.7]
+x_ideal_i = velocity_motion_model_noisy(x0, u, dt, noise)
+x_noise_i = velocity_motion_model_ideal(x0, u, dt)
+ideal_model.append(x0)
+noisy_model.append(x0)
 for i in  range(0, n):
-    noise = [sample_normal_dist(.001), sample_normal_dist(.1), sample_normal_dist(.001)]
-    xi = velocity_motion_model_noisy(x0, u, dt, noise)
-    s.append(xi) 
-    xf = velocity_motion_model_noisy(xf, u, dt, noise)
-    f.append(xf)
+    x_ideal_i = velocity_motion_model_ideal(x_noise_i, u, dt)
+    x_noise_i = velocity_motion_model_noisy(x_ideal_i, u, dt, noise)
+    ideal_model.append(x_ideal_i)
+    noisy_model.append(x_noise_i)
 
-s = np.array(s)
-f = np.array(f)
-plt.scatter(f[:,0], f[:,1], 15, 'filled'); #samples of final pose
-plt.scatter(s[:,0], s[:,1], 15, 'filled'); #samples of initial pose
+ideal_model = np.array(ideal_model)
+noisy_model = np.array(noisy_model)
 
-# plotting 
-xi = velocity_motion_model_ideal(x0, u, dt);
-s = xi
-x = []
-for i in range(0, n):
-    xi = velocity_motion_model_ideal(xi, u, dt)
-    x.append(x)
+fig, ax = plt.subplots()
+ax.scatter(ideal_model[:,0],ideal_model[:,1], label="ideal model")
+ax.plot(ideal_model[:,0], ideal_model[:,1])
 
-x = np.array(x)
+ax.scatter(noisy_model[:,0],noisy_model[:,1], label="noisy model")
+ax.plot(noisy_model[:,0], noisy_model[:,1])
 
-plt.figure(figsize=(9, 4))
+plot_data(ideal_model, ax, 'g')
+plot_data(noisy_model, ax, 'b')
 
-# plt.subplot(131)
-# plt.bar(names, values)
-# plt.subplot(132)
-# plt.scatter(names, values)
-# plt.subplot(133)
-# plt.plot(names, values)
-# plt.suptitle('Categorical Plotting')
-# plt.show()
+plt.legend()
+plt.show()
 
