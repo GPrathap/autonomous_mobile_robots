@@ -33,8 +33,6 @@ def sample_normal_distribution(b):
     return b * np.sum(rand) / 6
 
 # ideal motion model
-
-
 def velocity_motion_model_ideal(xk, u, dt):
     v = u[0]
     w = u[1]
@@ -50,8 +48,6 @@ def velocity_motion_model_ideal(xk, u, dt):
     return x
 
 # noisy motion model
-
-
 def velocity_motion_model_noisy(xk, u, dt, noise):
     v = u[0]
     w = u[1]
@@ -70,8 +66,6 @@ def velocity_motion_model_noisy(xk, u, dt, noise):
     return x
 
 # bicycle's velocity motion model
-
-
 def bicycle_motion_model(x0, u, dt, sigma_v, sigma_alpha, ):
     l = 0.1
     v, alpha = u
