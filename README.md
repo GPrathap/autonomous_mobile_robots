@@ -3,8 +3,8 @@
     
 - Section 0 :alien:	
     - Introduction [:books:](lectures/amr_introduction.pdf) 
-- Section 1 
-	- Motion Control :alien: [:books:](lectures/amr_motion.pdf) 
+- Section 1 :alien:
+	- Motion Control  [:books:](lectures/amr_motion.pdf) 
 		<ul>
 			<li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
 				<ul>
