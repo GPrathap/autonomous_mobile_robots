@@ -35,18 +35,19 @@
 	      <li>Estimation from Measurements and Controls</li>
 	    </ul>
 	- Robot localization   [:books: ](lectures/amr_robot_localization.pdf) 
-- Section 3 :alien:	[:books:](lectures/amr_kalman_filter.pdf)
-     <ul>
-   		<li> Gaussian Distribution</li>
-        <li> One Dimensional Kalman Filter</li>
-        <li> Multivariate Density Function</li>
-        <li> Marginal Density Function</li>
-        <li> Multivariate Normal Function</li>
-        <li> Two Dimensional Gaussian</li>
-        <li> Multiple Random Variable</li>
-        <li> Multidimensional Kalman Filter</li>
-        <li> Sensor Fusion</li>
-        <li> Linearization, Taylor Series Expansion, Linear Systems</li>
-        <li> Extended Kalman Filter (EKF)</li>
-        <li> Comparison between KF and EKF</li>
-	</ul>
+- Section 3 :alien:
+	- State Estimation with Kalman filter [:books:](lectures/amr_kalman_filter.pdf)
+		<ul>
+			<li> Gaussian Distribution</li>
+			<li> One Dimensional Kalman Filter</li>
+			<li> Multivariate Density Function</li>
+			<li> Marginal Density Function</li>
+			<li> Multivariate Normal Function</li>
+			<li> Two Dimensional Gaussian</li>
+			<li> Multiple Random Variable</li>
+			<li> Multidimensional Kalman Filter</li>
+			<li> Sensor Fusion</li>
+			<li> Linearization, Taylor Series Expansion, Linear Systems</li>
+			<li> Extended Kalman Filter (EKF)</li>
+			<li> Comparison between KF and EKF</li>
+		</ul>
