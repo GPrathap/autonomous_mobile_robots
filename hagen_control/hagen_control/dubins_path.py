@@ -34,7 +34,7 @@ def main():
 
     path = car.get_path(car.start_pos, route)
 
-    path = path[::5] + [path[-1]]
+    path = path[::10] + [path[-1]]
 
     carl = []
     for i in range(len(path)):
