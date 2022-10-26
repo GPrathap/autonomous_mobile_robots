@@ -34,6 +34,15 @@
 	      <li>Estimation from Measurements and Controls</li>
 	    </ul>
 	- Robot localization   [:books: ](lectures/amr_robot_localization.pdf) 
+		<ul>
+			<li> A Taxonomy of Localization Problems </li>
+			<li> Markov localization  </li>
+			<li> Environment Sensing </li>
+			<li> Motion in the Environment </li>
+			<li> Localization in the Environment </li>
+			<li> EKF localization with known correspondence </li>
+			<li> Particle filter localization with known correspondence </li>
+		</ul>
 - Section 3 :alien:
 	- State Estimation with Kalman filter [:books:](lectures/amr_kalman_filter.pdf)
 		<ul>
