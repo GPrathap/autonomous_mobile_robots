@@ -34,19 +34,23 @@ class EKFLocalization():
     def get_linearized_motion_model(self):
         x, y, theta, vt, wt, dt = sympy.symbols('x, y, theta, v_t, omega_t, delta_t')
         # define the kinematic model
-        # f = 
+        f = sympy.Matrix([[x+-(vt/wt)*sympy.sin(theta)+ (vt/wt)*sympy.sin(theta+ wt*dt)]
+                  ,[y+ (vt/wt)*sympy.cos(theta) - (vt/wt)*sympy.cos(theta+ wt*dt)]
+                  , [theta+wt*dt]])
         self._x, self._y, self._theta, self._vt, self._wt, self._dt = x, y, theta, vt, wt, dt
         self.state = sympy.Matrix([x, y, theta])
         self.control = sympy.Matrix([vt, wt])
-        self.F_j = #TODO calculate the jacobin with respect to self.state
-        self.V_j = #TODO calculate the jacobin with respect to self.control
+        self.F_j = f.jacobian(self.state)
+        self.V_j = f.jacobian(self.control)
         return
     
     def x_forward(self, x, u, dt):
         r = u[0]/u[1]
         theta = x[2]
         rotation = x[2] + u[1]*dt 
-        x_plus = #TODO given current state and control input define the next state 
+        x_plus = np.array([x[0] + -r*sin(theta) + r*sin(rotation),
+                       x[1] + r*cos(theta) - r*cos(rotation),
+                       x[2] + u[1]*dt]) 
         return  x_plus 
         
     def get_linearized_measurement_model(self, x, landmark_pos):
@@ -83,10 +87,10 @@ class EKFLocalization():
         # covariance in the control space
         M = array([[self.std_vel**2, 0],  [0, self.std_steer**2]])
 
-        self.P = #TODO define the KF convariance matrix with the prior knowledge 
+        self.P = F@self.P@F.T + self.Q + V@M@V.T 
 
-    def ekf_update(self, z, landmarks):
-        Hx, H = #TODO get linearized sensor measruments 
+    def ekf_update(self, z, landmark):
+        Hx, H = self.get_linearized_measurement_model(self.x, landmark)
         PHT = np.dot(self.P, H.T)
         self.K = #TODO define the kalman gain 
         self.y = #TODO calculate the residual of sensor reading 
