@@ -60,7 +60,7 @@
 			<li> Comparison between KF and EKF</li>
 		</ul>
 
-- Section 3 :alien:
+- Section 4 :alien:
 	- Perception [:books:](lectures/amr_vision.pdf)
 		<ul>
 			<li> Monocular Vision</li>
