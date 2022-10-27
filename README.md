@@ -59,3 +59,25 @@
 			<li> Extended Kalman Filter (EKF)</li>
 			<li> Comparison between KF and EKF</li>
 		</ul>
+
+- Section 3 :alien:
+	- Perception [:books:](lectures/amr_vision.pdf)
+		<ul>
+			<li> Monocular Vision</li>
+				<ul>
+					<li>Pinhole Camera Model</li>
+					<li>Image Plane, Camera Plane, Projection Matrix</li>
+					<li>Projective transformation</li>
+					<li>Finding Projection Matrix using Direct Linear Transform (DLT)</li>
+					<li>Camera Calibration</li>
+				</ul>
+			<li> Stereo Vision </li>
+				<ul>
+					<li>Simple Stereo, General Stereo</li>
+					<li>Some homogeneous properties</li>
+					<li>Epipolar Geometry</li>
+					<li>Essential matrix, Fundamental matrix</li>
+					<li>Camera Calibration</li>
+				</ul>
+			<li> Depth Estimation </li>
+		</ul>
