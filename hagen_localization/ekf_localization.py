@@ -33,7 +33,6 @@ class EKFLocalization():
 
     def get_linearized_motion_model(self):
         x, y, theta, vt, wt, dt = sympy.symbols('x, y, theta, v_t, omega_t, delta_t')
-        # define the kinematic model
         f = sympy.Matrix([[x+-(vt/wt)*sympy.sin(theta)+ (vt/wt)*sympy.sin(theta+ wt*dt)]
                   ,[y+ (vt/wt)*sympy.cos(theta) - (vt/wt)*sympy.cos(theta+ wt*dt)]
                   , [theta+wt*dt]])
@@ -50,7 +49,7 @@ class EKFLocalization():
         rotation = x[2] + u[1]*dt 
         x_plus = np.array([x[0] + -r*sin(theta) + r*sin(rotation),
                        x[1] + r*cos(theta) - r*cos(rotation),
-                       x[2] + u[1]*dt]) 
+                       x[2] + u[1]*dt])
         return  x_plus 
         
     def get_linearized_measurement_model(self, x, landmark_pos):
@@ -87,19 +86,19 @@ class EKFLocalization():
         # covariance in the control space
         M = array([[self.std_vel**2, 0],  [0, self.std_steer**2]])
 
-        self.P = F@self.P@F.T + self.Q + V@M@V.T 
+        self.P = F @ self.P @ F.T + V @ M @ V.T + self.Q
 
-    def ekf_update(self, z, landmark):
-        Hx, H = self.get_linearized_measurement_model(self.x, landmark)
+    def ekf_update(self, z, landmarks):
+        Hx, H = self.get_linearized_measurement_model(self.x, landmarks)
         PHT = np.dot(self.P, H.T)
-        self.K = #TODO define the kalman gain 
-        self.y = #TODO calculate the residual of sensor reading 
+        self.K = PHT.dot(np.linalg.inv(np.dot(H, PHT) + self.R))
+        self.y = self.residual(z, Hx)
         self.x = self.x + np.dot(self.K, self.y)
 
         # P = (I-KH)P(I-KH)' + KRK' is more numerically stable
         # P = (I-KH)P is the optimal gain 
         I_KH = self._I - np.dot(self.K, H)
-        self.P = #TODO define the KF convariance matrix with the posterior knowledge
+        self.P = np.dot(I_KH, self.P).dot(I_KH.T) + np.dot(self.K, self.R).dot(self.K.T)
         self.z = deepcopy(z)
         
     def z_landmark(self, lmark, sim_pos, std_rng, std_brg):
