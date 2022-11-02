@@ -13,7 +13,7 @@ from matplotlib.patches import Ellipse
 import math
 
 class EKFLocalization():
-    def __init__(self, dt, std_vel, std_steer, dim_x=3, dim_z=2, dim_u=2):
+    def __init__(self, dt, std_vel, std_steer, dim_x=3, dim_z=2, dim_u=2, sensor_type=2):
         self.dt = dt
         self.std_vel = std_vel
         self.std_steer = std_steer
@@ -29,6 +29,9 @@ class EKFLocalization():
         self.K = np.zeros(self.x.shape) # kalman gain
         self.y = np.zeros((dim_z, 1))
         self._I = np.eye(dim_x)
+        self.dim_z = dim_z
+        self.dim_x = dim_x
+        self.sensor_type = sensor_type
         
 
     def get_linearized_motion_model(self):
@@ -89,10 +92,22 @@ class EKFLocalization():
         self.P = F @ self.P @ F.T + V @ M @ V.T + self.Q
 
     def ekf_update(self, z, landmarks):
-        Hx, H = self.get_linearized_measurement_model(self.x, landmarks)
+        Hx_total = np.empty((self.dim_z, self.sensor_type))
+        H_total = np.empty((self.dim_z, 1))
+        for id, landmark in enumerate(landmarks):
+            Hx, H = self.get_linearized_measurement_model(self.x, landmark)
+            Hx_total[id*(self.sensor_type):(id+1)*(self.sensor_type), 0:self.dim_x] = Hx 
+            H_total[id*(self.sensor_type):(id+1)*(self.sensor_type), 0:1] = H
+
+        Hx = Hx_total
+        H = H_total 
         PHT = np.dot(self.P, H.T)
         self.K = PHT.dot(np.linalg.inv(np.dot(H, PHT) + self.R))
-        self.y = self.residual(z, Hx)
+        y_total = np.array(self.dim_z)
+        for id in range(0, int(self.dim_z/self.sensor_type)):
+            self.y_i = self.residual(z[id*(self.sensor_type):(id+1)*(self.sensor_type)], Hx[id*(self.sensor_type):(id+1)*(self.sensor_type)])
+            
+
         self.x = self.x + np.dot(self.K, self.y)
 
         # P = (I-KH)P(I-KH)' + KRK' is more numerically stable
@@ -137,7 +152,7 @@ class EKFLocalization():
     def run_localization(self, landmarks, std_range, std_bearing, step=10, ellipse_step=2000, ylim=None, iteration_num=5):
         self.x = array([[2, 6, .3]]).T # x, y, steer angle
         self.P = np.diag([.1, .1, .1])
-        self.R = np.diag([std_range**2, std_bearing**2])
+        # self.R[0,0] = np.diag([std_range**2, std_bearing**2])
         sim_pos = self.x.copy()
         u = array([1.1, .01]) 
         plt.figure()
@@ -150,10 +165,14 @@ class EKFLocalization():
                 self.predict(u=u)
                 if i % ellipse_step == 0:
                     self.plot_covariance_ellipse((self.x[0,0], self.x[1,0]), self.P[0:2, 0:2], std=6, facecolor='k', alpha=0.3)
-                     
-                for lmark in landmarks:
+
+                z_total = np.empty(self.dim_z)   
+                for id, lmark in enumerate(landmarks):
                     z = self.z_landmark(lmark, sim_pos, std_range, std_bearing)
-                    self.ekf_update(z, lmark)
+                    z_total[id*self.sensor_type:(id+1)*self.sensor_type] = z 
+                z = z_total 
+
+                self.ekf_update(z, landmarks)
                 if i % ellipse_step == 0:
                     self.plot_covariance_ellipse((self.x[0,0], self.x[1,0]), self.P[0:2, 0:2], std=6, facecolor='g', alpha=0.8)
         track = np.array(track)
@@ -166,5 +185,7 @@ class EKFLocalization():
         
 dt = 0.1
 landmarks = array([[50, 100], [40, 90], [150, 150], [-150, 200]])
-ekf = EKFLocalization(dt, std_vel=5.1, std_steer=np.radians(1))
+sensor_type = landmarks.shape[1]
+number_of_sensors = landmarks.shape[0]
+ekf = EKFLocalization(dt, std_vel=5.1, std_steer=np.radians(1), dim_z=number_of_sensors*sensor_type, sensor_type=sensor_type)
 ekf.run_localization(landmarks, std_range=0.3, std_bearing=0.1, ellipse_step=2000, iteration_num=20000)
