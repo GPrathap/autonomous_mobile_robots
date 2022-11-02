@@ -8,7 +8,7 @@ b = 5
 x = np.random.uniform(low=a, high=b, size=100)
 # Monte Carlo integration
 y = x**2
-# y_bar = TODO 
+y_bar =  
 
 def integrand(x):
     return  x**2

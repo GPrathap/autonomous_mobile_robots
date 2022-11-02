@@ -27,12 +27,23 @@
 	- Dubins path planning [:books:](lectures/amr_dubins_path_planning.pdf) 
 - Section 2 :alien:	
     - Bayesian Filter [:books: ](lectures/amr_bayesian_filter.pdf)  
-	 	 <ul>
+	 	<ul>
 	      <li>Basic of Probability</li>
 	      <li>Probabilistic Generative Laws</li>
 	      <li>Estimation from Measurements</li>
 	      <li>Estimation from Measurements and Controls</li>
 	    </ul>
+
+	- Particle Filter [:books: ](lectures/amr_particle_filter.pdf) 
+		<ul>
+			<li> A Taxonomy of Particle Filter </li>
+			<li> Bayesian Filter </li>
+			<li> Monte Carlo Integration (MCI) </li>
+			<li> Particle Filter </li>
+			<li> Importance Sampling </li>
+			<li> Particle Filter Algorithm </li>
+		</ul>
+
 	- Robot localization   [:books: ](lectures/amr_robot_localization.pdf) 
 		<ul>
 			<li> A Taxonomy of Localization Problems </li>
