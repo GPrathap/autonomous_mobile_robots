@@ -176,6 +176,7 @@ class PFLocalization():
         # TODO retrieve selected weights
         weights[:] = weights[indexes]
         weights.fill (1.0 / len(weights))
+        return  weights
     
     def estimate(self, particles, weights):
         pos = particles[:, 0:2]
@@ -241,8 +242,8 @@ class PFLocalization():
         plt.legend([p1, p2], ['Real', 'PF'], loc=4, numpoints=1)
         plt.show()
         
-dt = 0.05
+dt = 0.1
 landmarks = array([[50, 100], [40, 90], [150, 150], [-150, 200]])
-pfl = PFLocalization(dt, std_vel=0.1, std_steer=np.radians(1))
-pfl.run_localization(100, landmarks, initial_x=(1,1, np.pi/4), iteration_num=40)
-# pfl.run_localization(500, landmarks, iteration_num=200)
+pfl = PFLocalization(dt, std_vel=2.0, std_steer=np.radians(1))
+# pfl.run_localization(100, landmarks, initial_x=(1,1, np.pi/4), iteration_num=500)
+pfl.run_localization(500, landmarks, iteration_num=200)
