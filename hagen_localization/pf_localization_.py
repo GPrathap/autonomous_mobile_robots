@@ -21,7 +21,6 @@ class PFLocalization():
         self.std_steer = std_steer
         self.get_linearized_motion_model()
         self.subs = {self._x: 0, self._y: 0, self._vt:0, self._wt:0, self._dt:dt, self._theta:0}
-        
         self.x = np.zeros((dim_x, 1)) # state
         self.P = np.eye(dim_x)        # uncertainty covariance
         self.R = np.eye(dim_z)        # state uncertainty
@@ -224,10 +223,8 @@ class PFLocalization():
             sim_pos = self.x_forward(sim_pos, u, self.dt) # simulate robot
             track.append(sim_pos)
             particles = self.predict(particles, u=u, std=(.02, .05), dt=self.dt)
-            
             # incorporate measurements
             weights = self.update(particles, weights,  sim_pos.flatten()[0:2], R=sensor_std_err, landmarks=landmarks)
-            
             if self.neff(weights) < N/2:
                 indexes = self.resample_particles(weights)
                 weights = self.importance_sampling(particles, weights, indexes)
