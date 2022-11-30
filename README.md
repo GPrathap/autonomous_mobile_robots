@@ -3,7 +3,7 @@
     
 - Section 0 :alien:	
     - Introduction [:books:](lectures/amr_introduction.pdf) 
-- Section 1 (control) :alien:
+- Section 1 (Control) :alien:
 	- Motion Control  [:books:](lectures/amr_motion.pdf) 
 		<ul>
 			<li>Kinematics of wheeled mobile robots: internal, external, direct, and inverse </li>
@@ -25,7 +25,7 @@
 			</li>
 		</ul>
 	- Dubins path planning [:books:](lectures/amr_dubins_path_planning.pdf) 
-- Section 2 (estimation) :alien:	
+- Section 2 (Estimation) :alien:	
     - Bayesian Filter [:books: ](lectures/amr_bayesian_filter.pdf)  
 	 	<ul>
 	      <li>Basic of Probability</li>
@@ -86,7 +86,7 @@ mapping (SLAM)   [:books: ](lectures/amr_mapping_and_localization.pdf)
 			<li> TODO (more to come)  </li>
 		</ul>
 
-- Section 3 (perception) :alien:
+- Section 3 (Perception) :alien:
 	- Line Extraction Techniques [:books:](lectures/amr_feature_extraction.pdf)
 				<ul>
 					<li>Hough Transformation</li>
