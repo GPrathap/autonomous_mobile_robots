@@ -62,10 +62,27 @@ class ControlStrategy(Node):
         mask = np.abs(xwrap)>np.pi
         xwrap[mask] -= 2*np.pi * np.sign(xwrap[mask])
         return xwrap[0]
+    
+    def diff_drive_init(self, duration=10):
+        self.duration = duration
+        self.wL = 12 # Left wheel velocity
+        self.wR = 12 # Right wheel velocity
+        self.time_utilized = 0.0
+
+    def perform_action_diff_drive_one_step(self):
+        v = self.r/2*(self.wR+self.wL) # Robot velocity
+        w = self.r/self.L*(self.wR-self.wL) # Robot angular velocity
+        dq = np.array([v*np.cos(self.q[2]+self.Ts*w/2), v*np.sin(self.q[2]+self.Ts*w/2), w])
+        self.q = self.q + self.Ts*dq # Integration
+        self.q[2] = self.wrap_to_pi(self.q[2]) # Map orientation angle to [-pi, pi]
+        self.send_vel(v, w)
+        # rate.sleep()
+        # time.sleep(self.Ts)
+        self.time_utilized  =  self.time_utilized + self.Ts
 
 
     def timer_callback(self, ):
-        #TODO 
+        self.perform_action_diff_drive_one_step()
         return 
     
     def set_pose(self, msg):
@@ -82,14 +99,14 @@ class ControlStrategy(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    minimal_publisher = ControlStrategy(delta_t=0.03)
-    # TODO 
-    while minimal_publisher.end_controller is False and rclpy.ok():
+    control_strategy = ControlStrategy(delta_t=0.03)
+    control_strategy.diff_drive_init()
+    while control_strategy.end_controller is False and rclpy.ok():
         try:
-            rclpy.spin_once(minimal_publisher)
+            rclpy.spin_once(control_strategy)
         except KeyboardInterrupt:
             break
-    minimal_publisher.destroy_node()
+    control_strategy.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
