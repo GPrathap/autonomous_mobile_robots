@@ -68,6 +68,52 @@ class ControlStrategy(Node):
         self.wL = 12 # Left wheel velocity
         self.wR = 12 # Right wheel velocity
         self.time_utilized = 0.0
+        
+    def inter_point_diff_drive_init(self, duration=10, r_distance=1.3
+                    , refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7, dmin=0.7):
+        
+        self.duration = duration
+        self.r_distance = r_distance
+        self.refPose = refPose
+        self.k_p = k_p 
+        self.k_w = k_w
+        self.dmin = dmin
+        self.time_utilized = 0.0
+        self.xT = self.refPose[0]  - self.r_distance*np.cos(self.refPose[2])
+        self.yT = self.refPose[1]  - self.r_distance*np.sin(self.refPose[2])
+        self.state = 0
+            
+    def inter_point_diff_drive(self, ):
+        if(self.q is not None):
+            if(self.duration < self.time_utilized):
+                self.stop_vehicle()
+                print("End of simulation")
+                self.end_controller = True
+
+            self.D = np.sqrt((self.q[0]-self.refPose[0])**2 + (self.q[1]-self.refPose[1])**2)
+
+            if(self.D < self.dmin):
+                self.stop_vehicle()
+                print("Reach to the goal pose")
+                self.end_controller = True
+
+            if self.state == 0:
+                d = np.sqrt((self.yT-self.q[1])**2 + (self.xT-self.q[0])**2)
+                if(d < self.dmin):
+                    self.state = 1
+                self.phiT = np.arctan2(self.yT-self.q[1], self.xT-self.q[0])
+                self.ePhi = self.phiT - self.q[2]
+            else:
+                self.ePhi = self.refPose[2] - self.q[2]
+            
+            v = self.k_p*self.D
+            w = self.k_w*self.ePhi
+            print("Distance to the goal: ", self.D)
+            dq = np.array([v*np.cos(self.q[2]+self.Ts*w/2), v*np.sin(self.q[2]+self.Ts*w/2), w])
+            self.q = self.q + self.Ts*dq # Integration
+            self.q[2] = self.wrap_to_pi(self.q[2]) # Map orientation angle to [-pi, pi]
+            self.send_vel(v, w)
+            self.time_utilized  =  self.time_utilized + self.Ts 
 
     def perform_action_diff_drive_one_step(self):
         v = self.r/2*(self.wR+self.wL) # Robot velocity
@@ -82,7 +128,8 @@ class ControlStrategy(Node):
 
 
     def timer_callback(self, ):
-        self.perform_action_diff_drive_one_step()
+        # self.perform_action_diff_drive_one_step()
+        self.inter_point_diff_drive()
         return 
     
     def set_pose(self, msg):
@@ -100,7 +147,8 @@ class ControlStrategy(Node):
 def main(args=None):
     rclpy.init(args=args)
     control_strategy = ControlStrategy(delta_t=0.03)
-    control_strategy.diff_drive_init()
+    # control_strategy.diff_drive_init()
+    control_strategy.inter_point_diff_drive_init()
     while control_strategy.end_controller is False and rclpy.ok():
         try:
             rclpy.spin_once(control_strategy)
