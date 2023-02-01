@@ -41,13 +41,10 @@ should be enabled.
     > *Tip*: If the command `ros2 pkg list | grep hagen_gazebo` comes up empty
       after setting up the environment, Gazebo support wasn't correctly setup.
 
-1. Launch Hagen in a city (this will take some time to download models):
-
-        ros2 launch hagen_gazebo hagen.launch.py world:=hagen_city.world
-
 1. Launch Hagen in an empty world:
 
-        ros2 launch hagen_gazebo hagen.launch.py world:=hagen_empty.world
+        ros2 launch hagen_gazebo hagen.launch.py
 
 Acknowledgement
-   https://github.com/chapulina/dolly
+
+    https://automaticaddison.com

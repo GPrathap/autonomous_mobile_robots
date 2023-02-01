@@ -160,4 +160,4 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 
-# To reset ros2 service call /reset_simulation std_srvs/srv/Empty
+# To reset  ros2 service call /reset_simulation std_srvs/srv/Empty "{}"
