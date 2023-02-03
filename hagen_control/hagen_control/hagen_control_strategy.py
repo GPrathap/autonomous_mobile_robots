@@ -82,7 +82,54 @@ class ControlStrategy(Node):
         self.xT = self.refPose[0]  - self.r_distance*np.cos(self.refPose[2])
         self.yT = self.refPose[1]  - self.r_distance*np.sin(self.refPose[2])
         self.state = 0
+        
+    def inter_direction_diff_drive_init(self, duration=10, r_distance=1.3
+                    , refPose=np.array([3,6,0]), k_p=0.5, k_w=0.7, dmin=0.7):
+        self.duration = duration
+        self.r_distance = r_distance
+        self.refPose = refPose
+        self.k_p = k_p 
+        self.k_w = k_w
+        self.dmin = dmin
+        self.time_utilized = 0.0
+    
+    def inter_direction_diff_drive(self, ):
+        if(self.q is not None):
+            if(self.duration < self.time_utilized):
+                print("End of simulation")
+                self.send_vel(0.0, 0.0)
+                self.end_controller = True
+
+            self.D = np.sqrt((self.q[0]-self.refPose[0])**2 
+                                    + (self.q[1]-self.refPose[1])**2)
+
+            if(self.D < self.dmin):
+                print("Reach to the goal pose")
+                self.send_vel(0.0, 0.0)
+                self.end_controller = True
+
+            beta = np.arctan(self.r_distance/self.D)
+            phiR = np.arctan2(self.refPose[1]-self.q[1], self.refPose[0]-self.q[0])
+            alpha = self.wrap_to_pi(phiR-self.refPose[2])
             
+            if(alpha <0):
+                beta = -beta
+            ##Controller
+            if(np.abs(alpha) < np.abs(beta)):
+                ePhi = self.wrap_to_pi(phiR - self.q[2] + alpha) 
+            else:
+                ePhi = self.wrap_to_pi(phiR - self.q[2] + beta) 
+                
+            v = self.k_p*self.D
+            w = self.k_w*ePhi
+            print("Distance to the goal: ", self.D)
+            dq = np.array([v*np.cos(self.q[2]+self.Ts*w/2)
+                            , v*np.sin(self.q[2]+self.Ts*w/2), w])
+            self.q = self.q + self.Ts*dq # Integration
+            self.q[2] = self.wrap_to_pi(self.q[2]) # Map orientation angle to [-pi, pi]
+            self.send_vel(v, w)
+            self.time_utilized  =  self.time_utilized + self.Ts    
+        
     def inter_point_diff_drive(self, ):
         if(self.q is not None):
             if(self.duration < self.time_utilized):
@@ -129,7 +176,8 @@ class ControlStrategy(Node):
 
     def timer_callback(self, ):
         # self.perform_action_diff_drive_one_step()
-        self.inter_point_diff_drive()
+        self.inter_direction_diff_drive()
+        # self.inter_point_diff_drive()
         return 
     
     def set_pose(self, msg):
@@ -148,7 +196,8 @@ def main(args=None):
     rclpy.init(args=args)
     control_strategy = ControlStrategy(delta_t=0.03)
     # control_strategy.diff_drive_init()
-    control_strategy.inter_point_diff_drive_init()
+    # control_strategy.inter_point_diff_drive_init()
+    control_strategy.inter_direction_diff_drive_init()
     while control_strategy.end_controller is False and rclpy.ok():
         try:
             rclpy.spin_once(control_strategy)
@@ -160,4 +209,4 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 
-# To reset  ros2 service call /reset_simulation std_srvs/srv/Empty "{}"
+# To reset ros2 service call /reset_simulation std_srvs/srv/Empty
