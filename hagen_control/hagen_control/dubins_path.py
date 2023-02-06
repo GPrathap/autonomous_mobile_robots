@@ -11,15 +11,11 @@ from dpp.methods.dubins_path import DubinsPath
 
 from time import time
 
-
 def main():
 
     tc = TestCase()
-
     env = Environment(tc.obs)
-
     car = SimpleCar(env, tc.start_pos2, tc.end_pos2)
-
     dubins = DubinsPath(car)
 
     t = time()

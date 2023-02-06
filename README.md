@@ -23,6 +23,12 @@
 				<li>Reference path control</li>
 				</ul>
 			</li>
+			<li>Lateral control (Geometric controls) 
+				<ul>
+				<li>The pure pursuit (or pure tracking controller) </li>
+				<li>Stanley controller</li>
+				</ul>
+			</li>
 		</ul>
 	- Dubins path planning [:books:](lectures/amr_dubins_path_planning.pdf) 
 - Section 2 (Estimation) :alien:	
