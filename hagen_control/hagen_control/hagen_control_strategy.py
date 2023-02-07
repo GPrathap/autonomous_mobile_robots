@@ -4,17 +4,29 @@ from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-import time 
-import numpy as np 
+import time  
+import cv2
+import numpy as np
+from sensor_msgs.msg import Image, CompressedImage, CameraInfo
+import std_msgs.msg as std_msg
+import rclpy.qos as qos
+
 
 class ControlStrategy(Node):
-    def __init__(self, delta_t,):
+    def __init__(self, delta_t, ):
         super().__init__('control_strategy')
         self.publisher_ = self.create_publisher(Twist, '/hagen/cmd_vel', 30)
         self.vel_sub = self.create_subscription(Twist, '/hagen/cmd_vel', self.listener_callback, 10)
         self.odom_sub = self.create_subscription(Odometry, "/hagen/odom", self.set_pose, 20)
-        self.vel_sub
-        self.odom_sub
+        
+        self.img_sub = self.create_subscription(Image
+            , '/depth_camera/image_raw', self.img_callback, 3)
+        
+        self.img_info_sub = self.create_subscription(CameraInfo
+            , '/depth_camera/camera_info', self.camera_info_callback, 3)
+        
+        self.scan = self.create_subscription(LaserScan, '/scan', self.scan_callback, 3)
+        
         self.i = 0
         self.set_q_init = None
         self.q = None 
@@ -26,6 +38,20 @@ class ControlStrategy(Node):
         self.end_controller = False
         self.timer = self.create_timer(self.Ts, self.timer_callback)
 
+    def img_callback(self, m : Image):
+        np_img = np.reshape(m.data, (m.height, m.width, 3)).astype(np.uint8)
+        self.display(np_img)
+        
+    def camera_info_callback(self, m : CameraInfo):
+        print(m)
+ 
+    def display(self, img : np.ndarray):
+        cv2.imshow("camera view", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+        cv2.waitKey(1)
+        
+    def scan_callback(self, m : LaserScan):
+        scan_data = np.array(m.ranges)
+              
     def euler_from_quaternion(self, quaternion):
         """
         Converts quaternion (w in last place) to euler roll, pitch, yaw
@@ -198,7 +224,13 @@ def main(args=None):
     # control_strategy.diff_drive_init()
     # control_strategy.inter_point_diff_drive_init()
     control_strategy.inter_direction_diff_drive_init()
-    while control_strategy.end_controller is False and rclpy.ok():
+    # while control_strategy.end_controller is False and rclpy.ok():
+    #     try:
+    #         rclpy.spin_once(control_strategy)
+    #     except KeyboardInterrupt:
+    #         break
+        
+    while rclpy.ok():
         try:
             rclpy.spin_once(control_strategy)
         except KeyboardInterrupt:

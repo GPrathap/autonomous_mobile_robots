@@ -61,8 +61,12 @@ class StanleyController:
         # position of the front wheel axis (dx, dy) and find out the "index" that gives 
         # the minimum distance (d) to the reference position from the current 
         # location of the car (target_index).   
-
-        target_index = 
+        fx = self.hagen_robot.x + self.L * np.cos(self.hagen_robot.theta)
+        fy = self.hagen_robot.y + self.L * np.sin(self.hagen_robot.theta)
+        dx = fx - self.ref_path_x 
+        dy = fy - self.ref_path_y 
+        d = np.hypot(dx, dy)
+        target_index = np.argmin(d)
         return target_index, dx[target_index], dy[target_index], d[target_index]
     
     def calculate_crosstrack_term(self, target_velocity, dx, dy, absolute_error):
@@ -76,8 +80,8 @@ class StanleyController:
         target_index, dx, dy, absolute_error = self.nearest_pose_index()
         t_theta = self.ref_path_theta[target_index]
         # TODO estimate e_phi and e_delta 
-        e_phi = 
-        e_delta =      
+        e_phi = self.normalize_angle(t_theta - self.hagen_robot.theta)
+        e_delta, e = self.calculate_crosstrack_term(target_velocity, dx, dy, absolute_error)    
         delta = e_phi + e_delta
         
         delta_min = - np.pi / 6

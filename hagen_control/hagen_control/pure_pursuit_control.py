@@ -35,10 +35,11 @@ class HagenRobot:
         # TODO Let the state of the robot be position (x,y), orientation theta,
         # and velocity, and control input for the robot be acceleration 
         # and steering angle. Define the state transition  
-        self.x = 
-        self.y = 
-        self.theta = 
-        self.v = 
+        self.x += self.v * np.cos(self.theta) * self.Ts
+        self.y += self.v * np.sin(self.theta) * self.Ts
+        self.theta += self.v * np.tan(delta) / self.L * self.Ts
+        self.theta = np.fmod(self.theta, np.pi * 2)
+        self.v += a * self.Ts
 
 class PurePurSuitController:
     def __init__(self, robot_model, ref_path_x, ref_path_y, L_d=2.0, k=0.3, kp=1):
@@ -52,10 +53,10 @@ class PurePurSuitController:
     def pure_pursuit_control(self,):
         target_index = self.look_ahead_point_index()
         # TODO get the desired reference position
-        t_x, t_y = 
+        t_x, t_y = self.ref_path_x[target_index], self.ref_path_y[target_index]
         # TODO estimate the alpha and delta 
-        alpha = 
-        delta = 
+        alpha = np.arctan2(t_y - self.hagen_robot.y, t_x - self.hagen_robot.x) - self.hagen_robot.theta
+        delta = np.arctan(2 * self.hagen_robot.L * np.sin(alpha) / (self.k * (self.hagen_robot.v + 1e-5) + self.L_d))
         
         delta_min = -np.pi / 6
         delta_max = np.pi / 6
@@ -69,8 +70,11 @@ class PurePurSuitController:
         # TODO Estimate the distance to each control point from the center 
         # position of the back wheel axis and find out the "index" that gives 
         # the minimum distance to the reference position from the current 
-        # location of the car. 
-        index = 
+        # location of the car.
+        dx = [self.hagen_robot.x - t_x for t_x in self.ref_path_x]
+        dy = [self.hagen_robot.y - t_y for t_y in self.ref_path_y]
+        d = [np.abs(np.sqrt(idx ** 2 + idy ** 2)) for (idx, idy) in zip(dx, dy)]
+        index = d.index(min(d))
         L = 0
         LF = self.k * self.hagen_robot.v + self.L_d
         while LF > L and (index + 1) < len(self.ref_path_x):
