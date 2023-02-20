@@ -6,7 +6,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
@@ -15,7 +15,7 @@ def generate_launch_description():
   package_name = 'hagen_gazebo'
   robot_name_in_model = 'hagen_gazebo'
   rviz_config_file_path = 'rviz/urdf_gazebo_config.rviz'
-  urdf_file_path = 'urdf/hagen_gazebo_with_gazebo_plugins.urdf'
+  urdf_file_path = 'urdf/hagen_gazebo_with_gazebo_plugins.urdf'  
   world_file_path = 'worlds/basic.world'
     
   # Pose where we want to spawn the robot
@@ -34,7 +34,7 @@ def generate_launch_description():
   world_path = os.path.join(pkg_share, world_file_path)
   gazebo_models_path = os.path.join(pkg_share, gazebo_models_path)
   os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
-  
+  robot_localization_file_path = os.path.join(pkg_share, 'config/ekf_urdf.yaml') 
   # Launch configuration variables specific to simulation
   gui = LaunchConfiguration('gui')
   headless = LaunchConfiguration('headless')
@@ -44,9 +44,10 @@ def generate_launch_description():
   use_namespace = LaunchConfiguration('use_namespace')
   use_robot_state_pub = LaunchConfiguration('use_robot_state_pub')
   use_rviz = LaunchConfiguration('use_rviz')
-  use_sim_time = LaunchConfiguration('use_sim_time')
+  use_sim_time = LaunchConfiguration('use_sim_time', default='True')
   use_simulator = LaunchConfiguration('use_simulator')
   world = LaunchConfiguration('world')
+  
   
   # Declare the launch arguments  
   declare_use_joint_state_publisher_cmd = DeclareLaunchArgument(
@@ -171,5 +172,5 @@ def generate_launch_description():
   ld.add_action(start_robot_state_publisher_cmd)
   ld.add_action(start_joint_state_publisher_cmd)
   ld.add_action(start_rviz_cmd)
-
+  # ld.add_action(start_robot_localization_cmd)
   return ld

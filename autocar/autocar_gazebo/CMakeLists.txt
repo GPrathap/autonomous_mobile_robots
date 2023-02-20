@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(hagen_gazebo)
+project(autocar_gazebo)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -15,26 +15,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# Find dependencies
+# find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_python REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclpy REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-
-# Include cpp "include" directory
-include_directories(include)
-
-install(
-  DIRECTORY config launch rviz hagen_gazebo urdf worlds
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# Install Python modules
-ament_python_install_package(${PROJECT_NAME})
-
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -46,5 +31,29 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+link_directories(
+  ${GAZEBO_LIBRARY_DIRS}
+)
+
+include_directories(
+  ${GAZEBO_INCLUDE_DIRS}
+)
+
+
+# the place where gazebo puts the models by default
+set(GAZEBO_MODEL_PATH $ENV{HOME}/.gazebo/models)
+
+add_custom_target(COMMAND cmake -E make_directory ${GAZEBO_MODEL_PATH})
+
+install(DIRECTORY
+  worlds
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  models/autocar
+  DESTINATION ${GAZEBO_MODEL_PATH}
+)
 
 ament_package()

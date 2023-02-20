@@ -41,10 +41,14 @@ should be enabled.
     > *Tip*: If the command `ros2 pkg list | grep hagen_gazebo` comes up empty
       after setting up the environment, Gazebo support wasn't correctly setup.
 
-1. Launch Hagen in an empty world:
+2. Launch the Diffdrive robot :
 
         ros2 launch hagen_gazebo hagen.launch.py
 
+3. Launch the car_like robot :
+
+        ros2 launch hagen_gazebo hagen_car.launch.py
+
 Acknowledgement
 
-    https://automaticaddison.com
+    https://automaticaddison.com, https://github.com/winstxnhdw/AutoCarROS2
