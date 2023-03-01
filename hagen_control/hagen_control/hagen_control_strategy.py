@@ -20,10 +20,10 @@ class ControlStrategy(Node):
         self.odom_sub = self.create_subscription(Odometry, "/hagen/odom", self.set_pose, 20)
         
         self.img_sub = self.create_subscription(Image
-            , '/depth_camera/image_raw', self.img_callback, 3)
+            , '/hagen/image_raw', self.img_callback, 3)
         
         self.img_info_sub = self.create_subscription(CameraInfo
-            , '/depth_camera/camera_info', self.camera_info_callback, 3)
+            , '/hagen/camera_info', self.camera_info_callback, 3)
         
         self.scan = self.create_subscription(LaserScan, '/scan', self.scan_callback, 3)
         
