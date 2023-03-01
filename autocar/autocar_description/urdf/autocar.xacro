@@ -28,6 +28,35 @@
     <child link="hokuyo_link" />
   </joint>
 
+  <joint name="camera_joint" type="fixed">
+    <axis xyz="0 0 1" />
+    <origin xyz="0 2.34 0.24" rpy="0 0 1.5708" />
+    <parent link="chassis_link" />
+    <child link="camera_link" />
+  </joint>
+
+  <link name="camera_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0.0" />
+      <geometry>
+        <box size="0.05 0.05 0.05" />
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://autocar_description/meshes/hokuyo.dae" />
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
   <link name="hokuyo_link">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 1.0" />

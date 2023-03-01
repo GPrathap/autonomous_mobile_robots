@@ -12,6 +12,66 @@
       <child>chassis_link</child>
     </joint>
 
+      <joint name="camera_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>camera_link</child>
+        <pose>0 0 0 0 0 0</pose>
+        <axis>
+          <xyz>0 0 1</xyz>
+        </axis>
+      </joint>
+    
+    <link name="camera_link">
+      <!-- <pose>0.12 0 0.65 0 0 0</pose>
+      <visual name="camera_visual">
+        <pose>-0.005 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.015 0.08 0.022</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0 0 1.0</ambient>
+          <diffuse>0 0 0 1.0</diffuse>
+          <specular>0.0 0.0 0.0 1.0</specular>
+          <emissive>0.0 0.0 0.0 1.0</emissive>
+        </material>
+      </visual>   -->
+      <sensor name="depth_camera" type="camera">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>5</update_rate>
+        <pose relative_to='base_link'>0 2.34 0.72 0 0 1.5708</pose>
+        <camera name="camera">
+          <horizontal_fov>1.02974</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>10</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <!-- Noise is sampled independently per pixel on each frame.
+                That pixel's noise value is added to each of its color
+                  channels, which at that point lie in the range [0,1]. -->
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="depth_camera_controller" filename="libgazebo_ros_camera.so">
+          <camera_name>hagen</camera_name>
+          <frame_name>camera_link</frame_name>
+          <hack_baseline>0</hack_baseline>
+          <min_depth>0.001</min_depth>
+        </plugin>
+      </sensor>  
+    </link>
+
+
     <joint name="hokuyo_joint" type="fixed">
       <parent>base_link</parent>
       <child>hokuyo_link</child>
@@ -511,6 +571,8 @@
       <robot_base_frame>base_link</robot_base_frame>
 
     </plugin>
+
+    
 
   </model>
 
