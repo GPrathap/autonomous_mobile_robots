@@ -47,29 +47,29 @@ class KFEstimation():
  
     def applyFKEstimation(self, ):
         for n in range(len(self.measurements[0])):
-            # TODO Add KF prediction step 
+            self.KFPredict()
             Z = self.measurements[:, n].reshape(2, 1)
-            # TODO Add KF correction step 
+            self.KFUpdate(Z)
             self.xk.append(self.x)
         self.xk = np.array(self.xk)
 
     def KFPredict(self, ):
         # ========================
         # project the state ahead
-        # TODO 
+        self.x = self.Phi*self.x
         # project the error covariance ahead
-        # TODO 
-        return  
+        self.P = self.Phi*self.P*self.Phi.T + self.Q  
     
     def KFUpdate(self, Z):
         # ===============================
         # compute the Kalman Gain
-        # TODO 
+        S = self.H*self.P*self.H.T + self.R
+        K = (self.P*self.H.T) * np.linalg.pinv(S)
         # update the estimate via z
-        # TODO 
+        y = Z - (self.H*self.x) # innovation or residual
+        self.x = self.x + K*y
         # update the error covariance
-        # TODO 
-        return 
+        self.P = (self.I - (K*self.H))*self.P
         
     def plotStates(self, ):
         dxt = self.xk[:,2]
