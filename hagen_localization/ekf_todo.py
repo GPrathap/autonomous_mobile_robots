@@ -147,7 +147,6 @@ class EKFEstimation():
             z, ud = self.observation(u)
             
             self.applyEFKOneStep(z, ud)
-
             # storing data
             hxEst = np.hstack((hxEst, self.x_esti))
             hxDR = np.hstack((hxDR, self.xDR))
