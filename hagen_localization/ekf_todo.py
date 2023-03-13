@@ -73,12 +73,19 @@ class EKFEstimation():
         dy/dyaw = v*dt*cos(yaw)
         dy/dv = dt*sin(yaw)
         """
-        J_F  = #
-        return J_F
+        yaw = x[2,0]
+        v = u[0,0]
+        J_F = np.matrix([
+                [1.0,0.0,-v*np.sin(yaw)*self.dt,np.cos(yaw)*self.dt],
+                [0.0,1.0,v*np.cos(yaw)*self.dt,np.sin(yaw)*self.dt],
+                [0,0,1,0],
+                [0,0,0,1]
+                ])
+        return J_F 
 
     def jacobianOfObservationModel(self, ):
         # TODO Calculate jacobian of observation model
-        J_H = # 
+        J_H = np.matrix([[1.0,0,0,0],[0,1.0,0,0]])
         return J_H
 
 
@@ -91,22 +98,24 @@ class EKFEstimation():
         # project the state ahead
         self.x_pred = self.motionModel(self.x_esti, u)
         # TODO project the error covariance ahead
-        J_F = 
-        self.P_pred =  
+        J_F = self.jacobianOfMotionModel(self.x_esti, u)
+        self.P_pred = J_F@self.P_esti@J_F.T + self.Q 
     
     def EKFUpdate(self, z):
         # ===============================
         # TODO calculate jacobian of observation model 
-        J_H = 
+        J_H = self.jacobianOfObservationModel()
         # TODO compute the Kalman Gain
-        K = 
+        S = J_H@self.P_pred@J_H.T + self.R
+        K = self.P_pred@J_H.T@np.linalg.pinv(S)
         # update the estimate via z
         z_pred = self.observationModel(self.x_pred)
         # TODO calculate innovation or residual
-        y = 
+        y = z-z_pred # innovation or residual
         # TODO update the error covariance
-        self.x_esti = 
-        self.P_esti = 
+        self.x_esti = self.x_pred+K@y
+        # update the error covariance
+        self.P_esti = (np.eye(len(self.x_esti))-K@J_H)@self.P_pred
         
     def plotCovarianceEllipse(self, x_esti, P_esti):
         """
