@@ -30,7 +30,6 @@ class EKFLocalization():
         self.y = np.zeros((dim_z, 1))
         self._I = np.eye(dim_x)
         
-
     def get_linearized_motion_model(self):
         x, y, theta, vt, wt, dt = sympy.symbols('x, y, theta, v_t, omega_t, delta_t')
         f = sympy.Matrix([[x+-(vt/wt)*sympy.sin(theta)+ (vt/wt)*sympy.sin(theta+ wt*dt)]
@@ -44,7 +43,6 @@ class EKFLocalization():
         return
     
     def x_forward(self, x, u, dt):
-        # TODO given current state estimate next state 
         r = u[0]/u[1]
         theta = x[2]
         rotation = x[2] + u[1]*dt 
@@ -63,7 +61,6 @@ class EKFLocalization():
                 , [ (py - x[1, 0]) / hyp,  -(px - x[0, 0]) / hyp, -1]])
         return Hx, H
         
-
     def residual(self, a, b):
         """ compute residual (a-b) between measurements containing 
         [range, bearing]. Bearing is normalized to [-pi, pi)"""
@@ -86,23 +83,20 @@ class EKFLocalization():
 
         # covariance in the control space
         M = array([[self.std_vel**2, 0],  [0, self.std_steer**2]])
-        
+
         self.P = F @ self.P @ F.T + V @ M @ V.T + self.Q
 
-    def ekf_update(self, z, landmark):
-        # TODO perform the ekf update state
-        Hx, H = self.get_linearized_measurement_model(self.x, landmark)
+    def ekf_update(self, z, landmarks):
+        Hx, H = self.get_linearized_measurement_model(self.x, landmarks)
         PHT = np.dot(self.P, H.T)
-        # TODO Kalman gain 
-        self.K = 
-        # TODO innovation or residual
-        self.y = 
-        # TODO update the error covariance
-        self.x = 
+        self.K = PHT.dot(np.linalg.inv(np.dot(H, PHT) + self.R))
+        self.y = self.residual(z, Hx)
+        self.x = self.x + np.dot(self.K, self.y)
+
         # P = (I-KH)P(I-KH)' + KRK' is more numerically stable
         # P = (I-KH)P is the optimal gain 
         I_KH = self._I - np.dot(self.K, H)
-        self.P = 
+        self.P = np.dot(I_KH, self.P).dot(I_KH.T) + np.dot(self.K, self.R).dot(self.K.T)
         self.z = deepcopy(z)
         
     def z_landmark(self, lmark, sim_pos, std_rng, std_brg):
@@ -172,4 +166,4 @@ class EKFLocalization():
 dt = 0.1
 landmarks = array([[50, 100], [40, 90], [150, 150], [-150, 200]])
 ekf = EKFLocalization(dt, std_vel=5.1, std_steer=np.radians(1))
-ekf.run_localization(landmarks, std_range=0.3, std_bearing=0.1, ellipse_step=2000, iteration_num=20000)
+ekf.run_localization(landmarks, std_range=0.3, std_bearing=0.1, ellipse_step=100, iteration_num=2000)
